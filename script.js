@@ -51,6 +51,7 @@ const accounts = [account1, account2];
 
 /////////////////////////////////////////////////
 // Elements
+const loginBox = document.querySelector('.login--box');
 const labelWelcome = document.querySelector('.welcome');
 const labelDate = document.querySelector('.date');
 const labelBalance = document.querySelector('.balance__value');
@@ -62,12 +63,16 @@ const labelTimer = document.querySelector('.timer');
 const containerApp = document.querySelector('.app');
 const containerMovements = document.querySelector('.movements');
 
+const btnBoxLogin = document.querySelector('.login__bbtn');
 const btnLogin = document.querySelector('.login__btn');
 const btnTransfer = document.querySelector('.form__btn--transfer');
 const btnLoan = document.querySelector('.form__btn--loan');
 const btnClose = document.querySelector('.form__btn--close');
 const btnSort = document.querySelector('.btn--sort');
+const btnLogOut = document.querySelector('.form__btn--logout');
 
+const inputLoginBoxUsername = document.querySelector('.login__input--buser');
+const inputLoginBoxPin = document.querySelector('.login__input--bpin');
 const inputLoginUsername = document.querySelector('.login__input--user');
 const inputLoginPin = document.querySelector('.login__input--pin');
 const inputTransferTo = document.querySelector('.form__input--to');
@@ -237,17 +242,28 @@ const resetTimer = function () {
 // currentAccount = account1;
 // updateUI(currentAccount);
 // containerApp.style.opacity = 100;
+btnBoxLogin.addEventListener('click', login);
+btnLogin.addEventListener('click', login);
 
-btnLogin.addEventListener('click', function (e) {
+function login(e) {
   // Prevent form from submitting
   e.preventDefault();
 
   currentAccount = accounts.find(
-    acc => acc.username === inputLoginUsername.value
+    acc =>
+      acc.username === inputLoginUsername.value ||
+      acc.username === inputLoginBoxUsername.value
   );
   console.log(currentAccount);
 
-  if (currentAccount?.pin === +inputLoginPin.value) {
+  if (
+    currentAccount?.pin === +inputLoginPin.value ||
+    currentAccount?.pin === +inputLoginBoxPin.value
+  ) {
+    // document.body.style.background = 'rgba(0, 0, 0, 0.9)';
+
+    document.body.style.backdropFilter = 'blur(100px)';
+
     // Display UI and message
     labelWelcome.textContent = `Welcome back, ${
       currentAccount.owner.split(' ')[0]
@@ -278,7 +294,11 @@ btnLogin.addEventListener('click', function (e) {
     // labelDate.textContent = `${day}/${month}/${year} , ${hour}:${min}`;
 
     // Clear input fields
-    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginUsername.value =
+      inputLoginBoxUsername.value =
+      inputLoginBoxPin.value =
+      inputLoginPin.value =
+        '';
     inputLoginPin.blur();
 
     // timer update when loggedin
@@ -287,8 +307,10 @@ btnLogin.addEventListener('click', function (e) {
 
     // Update UI
     updateUI(currentAccount);
+    // toggleLogin();
+    loginBox.style.display = 'none';
   }
-});
+}
 
 btnTransfer.addEventListener('click', function (e) {
   e.preventDefault();
@@ -365,9 +387,32 @@ btnClose.addEventListener('click', function (e) {
   inputCloseUsername.value = inputClosePin.value = '';
 });
 
+btnLogOut.addEventListener('click', function (e) {
+  e.preventDefault();
+  loginBox.style.display = 'block';
+
+  document.body.style.backdropFilter = 'none';
+
+  clearInterval(timer);
+  labelWelcome.textContent = `Log in to get started`;
+  containerApp.style.opacity = 0;
+
+  resetTimer();
+});
+
+// function toggleLogin(e) {
+//   e.preventDefault();
+//   let loginBox = document.querySelector('.login--box');
+//   if (loginBox.style.display === 'none') {
+//     loginBox.style.display = 'block';
+//   } else {
+//     loginBox.style.display = 'none';
+//   }
+// }
+
 let sorted = false;
 btnSort.addEventListener('click', function (e) {
   e.preventDefault();
-  displayMovements(currentAccount.movements, !sorted);
+  displayMovements(currentAccount, !sorted);
   sorted = !sorted;
 });
